@@ -18,20 +18,29 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         findViewById(R.id.btn).setOnClickListener(this);
-        EventBus.getDefault().register(this);
         tv = (TextView) findViewById(R.id.textview);
+        EventBus.getDefault().postSticky("粘性");
     }
 
     @Override
     public void onClick(View v) {
         Intent intent = new Intent(this,Main2Activity.class);
-//        EventBus.getDefault().post(new FirstEvent("firstname"));
         startActivity(intent);
+        EventBus.getDefault().register(this);
     }
     @Subscribe(threadMode = ThreadMode.MAIN)
     public void onEvent(FirstEvent event){
-        tv.setText(event.getName());
         Toast.makeText(this, event.getName(), Toast.LENGTH_SHORT).show();
     }
+//
+    @Subscribe(sticky = true,threadMode = ThreadMode.MAIN)
+    public void onEvent(String event){
+        tv.setText(event);
+    }
 
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        EventBus.getDefault().unregister(this);
+    }
 }
